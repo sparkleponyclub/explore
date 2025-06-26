@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spc-explorer-frontend
+    restart: unless-stopped
+    environment:
+      # Network configuration
+      NEXT_PUBLIC_NETWORK_NAME: SPC Network
+      NEXT_PUBLIC_NETWORK_SHORT_NAME: SPC
+      NEXT_PUBLIC_NETWORK_ID: 36911
+      NEXT_PUBLIC_NETWORK_CURRENCY_NAME: SPC
+      NEXT_PUBLIC_NETWORK_CURRENCY_SYMBOL: SPC
+      NEXT_PUBLIC_NETWORK_CURRENCY_DECIMALS: 18
+      
+      # Branding
+      NEXT_PUBLIC_NETWORK_LOGO: https://spc.network/logo.png
+      NEXT_PUBLIC_NETWORK_LOGO_DARK: https://spc.network/logo.png
+      NEXT_PUBLIC_NETWORK_ICON: https://spc.network/logo.png
+      NEXT_PUBLIC_NETWORK_ICON_DARK: https://spc.network/logo.png
+      NEXT_PUBLIC_OG_IMAGE_URL: https://spc.network/logo.png
+      
+      # Font configuration
+      NEXT_PUBLIC_FONT_FAMILY_HEADING: '{"name": "Inter", "url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"}'
+      NEXT_PUBLIC_FONT_FAMILY_BODY: '{"name": "Inter", "url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"}'
+      
+      # Theme configuration
+      NEXT_PUBLIC_COLOR_THEME_DEFAULT: dark
+      NEXT_PUBLIC_HOMEPAGE_PLATE_BACKGROUND: black
+      NEXT_PUBLIC_HOMEPAGE_PLATE_TEXT_COLOR: white
+      
+      # API configuration
+      NEXT_PUBLIC_API_HOST: api-explore.spc.network
+      NEXT_PUBLIC_API_PROTOCOL: https
+      NEXT_PUBLIC_API_BASE_PATH: /
+      NEXT_PUBLIC_API_WEBSOCKET_PROTOCOL: wss
+      
+      # Network dropdown (all LUX ecosystem networks)
+      NEXT_PUBLIC_FEATURED_NETWORKS: /networks.json
+      
+      # Other configurations
+      NEXT_PUBLIC_IS_ACCOUNT_SUPPORTED: 'true'
+      NEXT_PUBLIC_AUTH_URL: https://api-explore.spc.network
+      NEXT_PUBLIC_LOGOUT_URL: https://spc.network/api/auth/logout
+      NEXT_PUBLIC_STATS_API_HOST: https://api-explore.spc.network/api/stats
+      NEXT_PUBLIC_VISUALIZE_API_HOST: https://api-explore.spc.network/api/visualize
+      NEXT_PUBLIC_CONTRACT_INFO_API_HOST: https://api-explore.spc.network
+      NEXT_PUBLIC_ADMIN_SERVICE_API_HOST: https://api-explore.spc.network
+      
+    networks:
+      - hanzo-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spc-explorer.rule=Host(`explore.spc.network`)"
+      - "traefik.http.routers.spc-explorer.entrypoints=websecure"
+      - "traefik.http.routers.spc-explorer.tls.certresolver=letsencrypt"
+      - "traefik.http.services.spc-explorer.loadbalancer.server.port=3000"
+      - "traefik.docker.network=hanzo-network"
+    volumes:
+      - ./public/networks.json:/app/public/networks.json:ro
+      - ./public/favicon.ico:/app/public/favicon.ico:ro
+
+networks:
+  hanzo-network:
+    external: true
